@@ -1,8 +1,14 @@
 #define NOMINMAX
 #include "Player.h"
 
-
 using namespace KamataEngine;
+
+int jumpCount_ = 0;          // 現在のジャンプ回数
+const int maxJumpCount_ = 2; // 最大ジャンプ回数（2段ジャンプ）
+
+bool isWallJumpL_ = false; // 壁ジャンプのフラグ
+
+bool isWallJumpR_ = false; // 壁ジャンプのフラグ
 
 void Player::UpDate() {
 
@@ -42,7 +48,7 @@ void Player::UpDate() {
 	upData->WorldTransformUpData(worldTransformAttack_);
 }
 
-//通常行動初期化
+// 通常行動初期化
 void Player::BehaviorRootInitialize() {}
 
 /// <summary>
@@ -97,7 +103,7 @@ void Player::BehavoirRootUpdate() {
 	}
 }
 
-//攻撃行動初期化
+// 攻撃行動初期化
 void Player::BehaviorAttackInitialize() {
 
 	// 02_14 19枚目 カウンター初期化
@@ -197,79 +203,104 @@ void Player::BehaviorAttackUpdate() {
 	worldTransformAttack_.rotation_ = worldTransform_.rotation_;
 }
 
-//void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const Vector3& position) {
-//	assert(model);
-//
-//	model_ = model;
-//	modelAttack_ = modelAttack;
-//	camera_ = camera;
-//
-//	worldTransformAttack_.Initialize();
-//
-//	worldTransformAttack_.translation_ = position;
-//
-//	worldTransformAttack_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-//
-//	worldTransform_.Initialize();
-//
-//	worldTransform_.translation_ = position;
-//
-//	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-//}
+void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const Vector3& position) {
+	assert(model);
+
+	model_ = model;
+	modelAttack_ = modelAttack;
+	camera_ = camera;
+
+	worldTransformAttack_.Initialize();
+
+	worldTransformAttack_.translation_ = position;
+
+	worldTransformAttack_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
+	worldTransform_.Initialize();
+
+	worldTransform_.translation_ = position;
+
+	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+}
 
 void Player::InputMove() {
+	// --- 横移動処理 ---
 	if (onGround_) {
-
 		// 左右操作
 		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
-			// 左右加速
 			Vector3 acceleration = {};
 			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-				if (velocity_.x < 0.0f) {
+				if (velocity_.x < 0.0f)
 					velocity_.x *= (1.0f - kAttenuation);
-				}
 				acceleration.x += kAcceleration / 60.0f;
 				if (lrDirection_ != LRDirection::kRight) {
 					lrDirection_ = LRDirection::kRight;
-
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-
 			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-				if (velocity_.x > 0.0f) {
+				if (velocity_.x > 0.0f)
 					velocity_.x *= (1.0f - kAttenuation);
-				}
 				acceleration.x -= kAcceleration / 60.0f;
 				if (lrDirection_ != LRDirection::kLeft) {
 					lrDirection_ = LRDirection::kLeft;
-
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
 			}
 			velocity_ = Add(velocity_, acceleration);
-
 			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 		} else {
-			// 非入力時は移動減衰をかける
 			velocity_.x *= (1.0f - kAcceleration);
 		}
 
-		// ほぼ0の場合に0にする
-		if (std::abs(velocity_.x) <= 0.0001f) {
+		if (std::abs(velocity_.x) <= 0.0001f)
 			velocity_.x = 0.0f;
-		}
+	}
 
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
-			// ジャンプ初速
-			velocity_ = Add(Vector3(0, kJumpAcceleration / 60.0f, 0), velocity_);
+	// --- ジャンプ処理 ---
+	// ジャンプキーを押した瞬間だけ反応
+	if (Input::GetInstance()->TriggerKey(DIK_UP)) {
+		// 接地 or 空中2回目のジャンプまで許可
+		if (jumpCount_ < maxJumpCount_) {
+			velocity_.y = 0.35f; // ジャンプ初速
+			onGround_ = false;
+			jumpCount_++; // ジャンプ回数を加算
 		}
-	} else {
-		// 落下速度
+	}
+
+	// --- 壁ジャンプ（右壁） ---
+	if (isWallJumpR_ && Input::GetInstance()->TriggerKey(DIK_UP)) {
+		// 壁ジャンプ時にジャンプカウントを1にリセット
+		jumpCount_ = 1;
+		velocity_.y = 0.35f; // 上方向
+		velocity_.x = -0.1f; // 左方向へ押し返す
+		onGround_ = false;
+		isWallJumpR_ = false; // 1回だけ有効にする
+	}
+
+	// --- 壁ジャンプ（左壁） ---
+	if (isWallJumpL_ && Input::GetInstance()->TriggerKey(DIK_UP)) {
+		jumpCount_ = 1;
+		velocity_.y = 0.35f;
+		velocity_.x = 0.1f; // 右方向へ押し返す
+		onGround_ = false;
+		isWallJumpL_ = false; // 1回だけ有効にする
+	}
+
+	// --- 重力処理 ---
+	if (!onGround_) {
 		velocity_ = Add(Vector3(0, -kGravityAcceleration / 60.0f, 0), velocity_);
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
+
+	// --- 地上での減衰処理 ---
+	if (onGround_) {
+		velocity_.x *= (1.0f - kAttenuationLanding);
+	}
+
+	// --- 移動量更新 ---
+	// ※この部分はそのままの処理が呼ばれる想定
 }
 
 // 02_07 スライド13枚目 当たり判定
@@ -279,11 +310,6 @@ void Player::CheckMapCollision(CollisionMapInfo& info) {
 	CheckMapCollisionDown(info);
 	CheckMapCollisionRight(info);
 	CheckMapCollisionLeft(info);
-	CollisionInvisibleBlock(info);
-	CollisionGoalBlockUp(info);
-	CollisionGoalBlockDown(info);
-	CollisionGoalBlockRight(info);
-	CollisionGoalBlockLeft(info);
 }
 
 // マップ衝突判定上方向
@@ -442,6 +468,12 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			velocity_.x *= (1.0f - kAttenuationLanding);
 			// Y速度をゼロにする
 			velocity_.y = 0.0f;
+
+			jumpCount_ = 0;
+			// isOnGround_ = true;
+		} else {
+			// isOnGround_ = false;
+			onGround_ = false;
 		}
 	}
 }
@@ -457,6 +489,7 @@ void Player::UpdateOnWall(const CollisionMapInfo& info) {
 // マップ衝突判定右方向
 void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	// 右移動あり？
+
 	if (info.move.x <= 0) {
 		return;
 	}
@@ -502,9 +535,11 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 			info.move.x = std::max(0.0f, rect.left - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
 			info.hitWall = true;
 		}
+		isWallJumpR_ = true;
+	} else {
+		isWallJumpR_ = false;
 	}
 }
-
 
 // マップチップ衝突判定左方向
 void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
@@ -534,20 +569,12 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		hit = true;
 	}
 
-	if (mapChipType == MapChipType::kTrap2 && mapChipTypeNext != MapChipType::kTrap2) {
-		hit = true;
-	}
-
 	// 左下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex + 1, indexSet.yIndex);
 
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
-		hit = true;
-	}
-
-	if (mapChipType == MapChipType::kTrap2 && mapChipTypeNext != MapChipType::kTrap2) {
 		hit = true;
 	}
 
@@ -564,6 +591,9 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 			info.move.x = std::max(0.0f, rect.right - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
 			info.hitWall = true;
 		}
+		isWallJumpL_ = true;
+	} else {
+		isWallJumpL_ = false;
 	}
 }
 
@@ -604,7 +634,6 @@ Vector3 Player::GetWorldPosition() const {
 	return worldPos;
 }
 
-
 // 02_10 14枚目
 AABB Player::GetAABB() {
 
@@ -618,16 +647,16 @@ AABB Player::GetAABB() {
 	return aabb;
 }
 
-//// 02_10 21枚目
-//void Player::OnCollision(const Enemy* enemy) {
-//
-//	// 02_15 20枚目
-//	if (IsAttack()) {
-//		return; // 攻撃中はダメージ無効
-//	}
-//
-//	(void)enemy;
-//
-//	// 02_12 12枚目 書き換え
-//	isDead_ = true;
-//}
+// 02_10 21枚目
+void Player::OnCollision(const Enemy* enemy) {
+
+	// 02_15 20枚目
+	if (IsAttack()) {
+		return; // 攻撃中はダメージ無効
+	}
+
+	(void)enemy;
+
+	// 02_12 12枚目 書き換え
+	isDead_ = true;
+}

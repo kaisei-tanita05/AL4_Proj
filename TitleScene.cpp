@@ -38,7 +38,7 @@ void TitleScene::Initialize() {
 	fade_->Initialize();
 
 	// 02_13 22枚目
-	fade_->Start(Fade::Status::FadeIn, 5.0f);
+	fade_->Start(Fade::Status::FadeIn, 2.0f);
 }
 
 void TitleScene::Update() {
@@ -86,5 +86,16 @@ void TitleScene::Update() {
 }
 
 void TitleScene::Draw() {
+	DirectXCommon* dxCommon_ = DirectXCommon::GetInstance();
+	// コマンドリストの取得
+	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
+	Model::PreDraw(commandList);
+
+	modelTitle_->Draw(worldTransformTitle_, camera_);
+	modelPlayer_->Draw(worldTransformPlayer_, camera_);
+	Model::PostDraw();
+
+	// 02_13 13枚目
+	fade_->Draw();
 }

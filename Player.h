@@ -5,6 +5,12 @@
 #include <algorithm>
 #include <cassert>
 #include <numbers>
+#include "MapChipField.h"
+#include "Enemy.h"
+
+class MapChipField;
+
+class Enemy;
 
 using namespace KamataEngine;
 
@@ -48,7 +54,7 @@ public:
 
 
 
-	void Initialize(const  Vector3& position);
+	void Initialize(Model* model_, Model* modelAttack, Camera* camera_, const Vector3& position);
 
 	void UpDate();
 
@@ -60,6 +66,9 @@ public:
 	// 02_06スライド28枚目で追加
 	const Vector3& GetVelocity() const { return velocity_; }
 
+	// 02_07 スライド4枚目
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
 	// 02_10 10枚目 ワールド座標を取得
 	Vector3 GetWorldPosition() const;
 
@@ -67,7 +76,7 @@ public:
 	AABB GetAABB();
 
 	// 02_10 21枚目 衝突応答
-	//void OnCollision(const Enemy* enemy);
+	void OnCollision(const Enemy* enemy);
 
 	// 02_12 11枚目 デスフラグ
 	bool IsDead() const { return isDead_; }
@@ -81,7 +90,7 @@ public:
 	//8枚目 攻撃行動更新
 	void BehaviorAttackUpdate();
 
-	void BehaviorPariUpData();
+	//void BehaviorPariUpData();
 
 	//16枚目 通常行動初期化
 	void BehaviorRootInitialize();
@@ -90,7 +99,7 @@ public:
 	void BehaviorAttackInitialize();
 
 
-	void BehaviorPariInitialize();
+	//void BehaviorPariInitialize();
 
 	/// <summary>
 	/// プレイヤーの位置を設定
@@ -155,6 +164,9 @@ private:
 	// 最大落下速度(下方向)
 	static inline const float kLimitFallSpeed = 0.5f;
 
+	// 02_07 マップチップによるフィールド
+	MapChipField* mapChipField_ = nullptr;
+
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
@@ -194,12 +206,7 @@ private:
 	void CheckMapCollisionRight(CollisionMapInfo& info);
 	void CheckMapCollisionLeft(CollisionMapInfo& info);
 
-	void CollisionInvisibleBlock(CollisionMapInfo& info);
-
-	void CollisionGoalBlockUp(CollisionMapInfo& info);
-	void CollisionGoalBlockDown(CollisionMapInfo& info);
-	void CollisionGoalBlockRight(CollisionMapInfo& info);
-	void CollisionGoalBlockLeft(CollisionMapInfo& info);
+	
 
 	// 02_07 スライド17枚目
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
@@ -244,4 +251,8 @@ private:
 	//26枚目 余韻動作の時間
 	static inline const uint32_t kRecoveryTime = 12;
 	WorldTransform worldTransformAttack_;
+
+	bool isOnGround_ = false;    // 接地しているかどうか
+	
+	
 };
