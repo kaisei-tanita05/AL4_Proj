@@ -123,7 +123,7 @@
 		    gameOverScene->Update();
 		    break;
 	    case Scene::kGameClear:
-		  //  gameClearScene->Update();
+			//gameClearScene->Update();
 		    break;
 	    }
     }

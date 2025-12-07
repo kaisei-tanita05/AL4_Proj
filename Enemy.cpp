@@ -8,6 +8,7 @@
 #include <cassert>
 #include <numbers>
 
+
 using namespace KamataEngine;
 
 void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
@@ -30,6 +31,8 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	walkTimer = 0.0f;
 
 	isDead_ = false;
+
+	upData = new UpData();
 }
 
 // 02_09 スライド5枚目
@@ -65,6 +68,21 @@ void Enemy::UpDate() {
 		// 02_09 23枚目 回転アニメーション
 		worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
 
+		// 弾発射タイマー更新
+		shootTimer_ += 1.0f / 60.0f;
+		if (shootTimer_ >= kShootInterval) {
+			shootTimer_ = 0.0f;
+
+			if (gameScene_) {
+				// 発射位置（敵のワールド座標）
+				Vector3 bulletPos = GetWorldPosition();
+				// 発射方向（例：左方向）
+				Vector3 bulletSpeed = {-0.2f, 0.0f, 0.0f};
+				// 弾を生成
+				gameScene_->CreateEnemyBullet(bulletPos, bulletSpeed);
+			}
+		}
+
 		// 02_09 スライド8枚目 ワールド行列更新
 		upData->WorldTransformUpData(worldTransform_);
 		break;
@@ -84,9 +102,16 @@ void Enemy::UpDate() {
 		break;
 	}
 
-	// 02_09 16枚目 移動
-	worldTransform_.translation_ += velocity_;
+	if (isStop_) {
 
+		worldTransform_.translation_;
+
+		return;
+	} else {
+
+		// 02_09 16枚目 移動
+		worldTransform_.translation_ += velocity_;
+	}
 	// 02_09 20枚目
 	walkTimer += 1.0f / 60.0f;
 

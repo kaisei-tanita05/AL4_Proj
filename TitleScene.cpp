@@ -2,6 +2,8 @@
 #include "Math.h"
 #include <numbers>
 
+using namespace KamataEngine;
+
 TitleScene::~TitleScene() {
 	delete modelPlayer_;
 	delete modelTitle_;

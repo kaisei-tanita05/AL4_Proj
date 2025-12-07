@@ -7,7 +7,6 @@
 #include <array>
 #include <numbers>
 
-using namespace KamataEngine;
 
 struct ParticleData {
 	float angle;  // 現在の回転角（ラジアン）
@@ -21,7 +20,7 @@ struct ParticleData {
 class DeathParticles {
 public:
 	// 02_11_8枚目 Initialize,Update,Draw関数追加
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 	void Update();
 	void Draw();
 
@@ -33,15 +32,15 @@ private:
 	static inline const uint32_t kNumParticles = 8;
 
 	// 02_11_10枚目パーティクル座標配列
-	std::array<WorldTransform, kNumParticles> worldTransforms_;
+	std::array<KamataEngine::WorldTransform, kNumParticles> worldTransforms_;
 
 	std::array<ParticleData, kNumParticles> particles_;
 
 	// 02_11_13枚目 モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	// 02_11_13枚目 カメラ
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	// 02_11_22枚目 存続時間（消滅までの時間）<秒>
 	static inline const float kDuration_ = 2.0f;
@@ -59,15 +58,15 @@ private:
 	float counter_ = 0.0f;
 
 	// 02_11_30枚目 色変更オブジェクト
-	ObjectColor objectColor_;
+	KamataEngine::ObjectColor objectColor_;
 
 	// 02_11_30枚目 色の数値
-	Vector4 color_;
+	KamataEngine::Vector4 color_;
 
 	UpData* upData = nullptr;
 
 	// ワールド変換データ
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 
-	Vector3 center_;
+	KamataEngine::Vector3 center_;
 };

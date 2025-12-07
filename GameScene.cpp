@@ -64,11 +64,8 @@ GameScene::~GameScene() {
 	delete chooseTexture_;
 }
 
-
-void GameScene::Initialize() 
-{
-	//ここにインゲームの初期化処理を書く
-
+void GameScene::Initialize() {
+	// ここにインゲームの初期化処理を書く
 
 	////スプライトインスタンスの生成
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
@@ -132,9 +129,9 @@ void GameScene::Initialize()
 	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
 	CController_->SetMovableArea(cameraArea);
 
-
 	enemy_model_ = Model::CreateFromOBJ("idiotFace");
 
+	enemyBulletModel_ = Model::CreateFromOBJ("enemyBullet");
 
 	// 02_10 5枚目（for文の中身全部）
 	for (int32_t i = 0; i < 3; ++i) {
@@ -218,7 +215,6 @@ Vector3 GameScene::GetWorldPosition() const {
 	return worldPos;
 }
 
-
 AABB GameScene::GetAABB() {
 	Vector3 worldPos = GetWorldPosition();
 
@@ -290,10 +286,9 @@ void GameScene::GenerateBlocks() {
 	}
 }
 
-void GameScene::Update() 
-{
-	//ここにインゲームの更新処理を書く
-	//  デスフラグの立ったエフェクトを削除
+void GameScene::Update() {
+	// ここにインゲームの更新処理を書く
+	//   デスフラグの立ったエフェクトを削除
 	hitEffects_.remove_if([](HitEffect* hitEffect) {
 		if (hitEffect->IsDead()) {
 			delete hitEffect;
@@ -325,8 +320,6 @@ void GameScene::Update()
 
 		skydome_->Update();
 		CController_->Updata();
-		//		worldTransformSkydome_.UpdateMatrix();
-		//		cameraController->Update();
 
 		// 自キャラの更新
 		player_->UpDate();
@@ -341,7 +334,7 @@ void GameScene::Update()
 
 		// UpdateCamera();
 #ifdef _DEBUG
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->TriggerKey(DIK_RETURN)) {
 			// フラグをトグル
 			isDebugCameraActive_ = !isDebugCameraActive_;
 		}
@@ -400,12 +393,22 @@ void GameScene::Update()
 			enemy->UpDate();
 		}
 
+		for (enemyBullet* bullet : enemyBullets_) {
+			bullet->UpDate();
+		}
+		enemyBullets_.remove_if([](enemyBullet* bullet) {
+			if (!bullet->IsDead())
+				return false;
+			delete bullet;
+			return true;
+		});
+
 		for (HitEffect* hitEffect : hitEffects_) {
 			hitEffect->Update();
 		}
 
 #ifdef _DEBUG
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->TriggerKey(DIK_RETURN)) {
 			// フラグをトグル
 			isDebugCameraActive_ = !isDebugCameraActive_;
 		}
@@ -457,6 +460,10 @@ void GameScene::Update()
 			enemy->UpDate();
 		}
 
+		for (enemyBullet* bullet : enemyBullets_) {
+			bullet->UpDate();
+		}
+
 		// 02_11 18枚目 デスパーティクルあれば更新
 		if (deathParticles_) {
 			deathParticles_->Update();
@@ -479,6 +486,10 @@ void GameScene::Update()
 
 		for (Enemy* enemy : enemies_) {
 			enemy->UpDate();
+		}
+
+		for (enemyBullet* bullet : enemyBullets_) {
+			bullet->UpDate();
 		}
 
 		for (HitEffect* hitEffect : hitEffects_) {
@@ -523,10 +534,20 @@ void GameScene::Update()
 	}
 }
 
+void GameScene::CreateEnemyBullet(const Vector3& position, const Vector3& speed) {
 
+	enemyBullet* newBullet = new enemyBullet();
 
-void GameScene::Draw() 
-{
+	// 弾の生成
+	newBullet->Initialize(enemyBulletModel_, &camera_, const_cast<Vector3&>(position));
+	newBullet->SetSpeed(speed);
+
+	newBullet->SetGameScene(this);
+
+	enemyBullets_.push_back(newBullet);
+}
+
+void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	Model::PreDraw(dxCommon->GetCommandList());
@@ -560,6 +581,10 @@ void GameScene::Draw()
 	// 02_09 12枚目 敵更新
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
+	}
+
+	for (enemyBullet* bullet : enemyBullets_) {
+		bullet->Draw();
 	}
 
 	// 02_11 18枚目 デスパーティクルあれば描画
@@ -620,12 +645,11 @@ void GameScene::Draw()
 	fade_->Draw();
 }
 
-
 // 02_10 16枚目
 void GameScene::CheckAllCollisions() {
 
 	// 判定対象1と2の座標
-	AABB aabb1, aabb2;
+	AABB aabb1, aabb2, aabb3;
 
 #pragma region 自キャラと敵キャラの当たり判定
 	{
@@ -648,6 +672,69 @@ void GameScene::CheckAllCollisions() {
 				player_->OnCollision(enemy);
 				// 敵弾の衝突時コールバックを呼び出す
 				enemy->OnCollision(player_);
+
+				enemy->SetStop(true); // ← 止める用の処理（下に関数も書く）
+			}
+		}
+
+		for (enemyBullet* bullet : enemyBullets_) {
+
+			 if (!bullet || bullet->IsDead()) {
+				continue;
+			}
+
+			aabb3 = bullet->GetAABB();
+
+			if (IsCollision(aabb1, aabb3)) {
+				player_->OnCollision2(bullet);
+
+				//Vector3 v = bullet->GetVelocity();
+				//v.x *= -1.0f; // ← X 方向反転（必要なら Y,Z も）
+				//bullet->SetVelocity(v);
+
+				//// 弾の位置を少し押し戻してめり込み防止
+				//Vector3 pos = bullet->GetPosition();
+				//pos.x += v.x * 0.5f;
+				//bullet->SetPosition(pos);
+
+				 // 現在の弾の速度（大きさを保持するために使う）
+				Vector3 curV = bullet->GetVelocity();
+
+				// --- 「スペース押下」かつプレイヤーが生存しているなら跳ね返す ---
+				if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+					// プレイヤー位置と弾位置
+					Vector3 playerPos = player_->GetWorldPosition();
+					Vector3 bulletPos = bullet->GetPosition();
+
+					// 跳ね返す方向 = 弾位置 - プレイヤー位置
+					Vector3 dir = {bulletPos.x - playerPos.x, bulletPos.y - playerPos.y, bulletPos.z - playerPos.z};
+
+					// 長さを求めて正規化（ゼロ除算対策）
+					float len = std::sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+					if (len <= 1e-6f) {
+						// ほとんど同じ位置なら X 方向へ反転する
+						dir = {(curV.x >= 0.0f) ? 1.0f : -1.0f, 0.0f, 0.0f};
+						len = 1.0f;
+					}
+					dir.x /= len;
+					dir.y /= len;
+					dir.z /= len;
+
+					// 現在の速度ベクトルの大きさを保持（またはデフォルト速度に）
+					float speed = std::sqrt(curV.x * curV.x + curV.y * curV.y + curV.z * curV.z);
+					if (speed < 1e-6f)
+						speed = 0.25f; // もし速度がほぼ0なら適当な速度を設定
+
+					// 新しい速度を設定（プレイヤーから弾へ向かう方向）
+					Vector3 newV = {dir.x * speed, dir.y * speed, dir.z * speed};
+					bullet->SetVelocity(newV);
+
+					// 弾を少しプレイヤー側から押し出してめり込みを防止
+					Vector3 newPos = {bulletPos.x + dir.x * 0.5f, bulletPos.y + dir.y * 0.5f, bulletPos.z + dir.z * 0.5f};
+					bullet->SetPosition(newPos);
+				}
+
+				break;
 			}
 		}
 	}

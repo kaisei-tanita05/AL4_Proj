@@ -3,7 +3,6 @@
 #include "KamataEngine.h"
 #include "UpData.h"
 
-using namespace KamataEngine;
 
 class GameOver {
 public:
@@ -37,14 +36,14 @@ private:
 	static inline const float kTimeGameOverMove = 2.0f;
 
 	// ビュープロジェクション
-	Camera camera_;
-	WorldTransform worldTransformGameOver_;
-	WorldTransform worldTransformPlayer_;
-	WorldTransform worldTransformIdiotFace_;
+	KamataEngine::Camera camera_;
+	KamataEngine::WorldTransform worldTransformGameOver_;
+	KamataEngine::WorldTransform worldTransformPlayer_;
+	KamataEngine::WorldTransform worldTransformIdiotFace_;
 
-	Model* modelPlayer_ = nullptr;
-	Model* modelGameOver_ = nullptr;
-	Model* modelIdiotFace_ = nullptr;
+	KamataEngine::Model* modelPlayer_ = nullptr;
+	KamataEngine::Model* modelGameOver_ = nullptr;
+	KamataEngine::Model* modelIdiotFace_ = nullptr;
 
 	float counter_ = 0.0f;
 	// 02_12 26枚目

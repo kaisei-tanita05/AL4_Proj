@@ -3,8 +3,6 @@
 #include <KamataEngine.h>
 #include <cstdint>
 
-using namespace KamataEngine;
-
 /// <summary>
 /// ヒット演出用エフェクト
 /// </summary>
@@ -18,35 +16,35 @@ public:
 	};
 
 	// 02_16 10枚目(SetModel,SetCamera)
-	static void SetModel(Model* model) { model_ = model; }
+	static void SetModel(KamataEngine::Model* model) { model_ = model; }
 
-	static void SetCamera(Camera* camera) { camera_ = camera; }
+	static void SetCamera(KamataEngine::Camera* camera) { camera_ = camera; }
 
-	void Initialize(const Vector3& position);
+	void Initialize(const KamataEngine::Vector3& position);
 
 	void Update();
 
 	void Draw();
 
-	static HitEffect* Create(const Vector3& position);
+	static HitEffect* Create(const KamataEngine::Vector3& position);
 
 	bool IsDead() const { return state_ == State::kDead; }
 
 private:
 	// モデル(借りてくる用)
-	static Model* model_;
+	static KamataEngine::Model* model_;
 
 	// カメラ(借りてくる用)
-	static Camera* camera_;
+	static KamataEngine::Camera* camera_;
 
 	UpData* upData = nullptr;
 
 	// 円のワールドトランスフォーム
-	WorldTransform circleWorldTransform_;
+	KamataEngine::WorldTransform circleWorldTransform_;
 
 	State state_ = State::kSpread;
 
-	ObjectColor objectColor_;
+	KamataEngine::ObjectColor objectColor_;
 
 	// カウンター
 	uint32_t counter_ = 0;
@@ -61,5 +59,5 @@ private:
 	static const inline uint32_t kellipseEffectNum = 2;
 
 	// 楕円のワールドトランスフォーム
-	std::array<WorldTransform, kellipseEffectNum> ellipseWorldTransforms_;
+	std::array<KamataEngine::WorldTransform, kellipseEffectNum> ellipseWorldTransforms_;
 };

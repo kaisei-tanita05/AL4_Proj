@@ -6,13 +6,12 @@
 #include <cassert>
 #include <numbers>
 #include "MapChipField.h"
-#include "Enemy.h"
+#include "enemyBullet.h"
 
 class MapChipField;
 
 class Enemy;
 
-using namespace KamataEngine;
 
 class Player {
 
@@ -54,29 +53,31 @@ public:
 
 
 
-	void Initialize(Model* model_, Model* modelAttack, Camera* camera_, const Vector3& position);
+	void Initialize(KamataEngine::Model* model_, KamataEngine::Model* modelAttack, KamataEngine::Camera* camera_, const KamataEngine::Vector3& position);
 
 	void UpDate();
 
 	void Draw();
 
 	// getter(02_06スライド11枚目で追加)
-	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	// 02_06スライド28枚目で追加
-	const Vector3& GetVelocity() const { return velocity_; }
+	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
 
 	// 02_07 スライド4枚目
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 	// 02_10 10枚目 ワールド座標を取得
-	Vector3 GetWorldPosition() const;
+	KamataEngine::Vector3 GetWorldPosition() const;
 
 	// AABBを取得
 	AABB GetAABB();
 
 	// 02_10 21枚目 衝突応答
 	void OnCollision(const Enemy* enemy);
+
+	void OnCollision2(const enemyBullet* enemyBullet_);
 
 	// 02_12 11枚目 デスフラグ
 	bool IsDead() const { return isDead_; }
@@ -105,7 +106,7 @@ public:
 	/// プレイヤーの位置を設定
 	/// </summary>
 	/// <param name="position">設定する位置</param>
-	void SetPosition(const Vector3& position) { worldTransform_.translation_ = position; }
+	void SetPosition(const KamataEngine::Vector3& position) { worldTransform_.translation_ = position; }
 
 	bool IsAttack() const { return behavior_ == Behavior::kAttack && attackPhase_ == AttackPhase::kAction; }
 
@@ -116,18 +117,18 @@ public:
 private:
 
 	// ワールド変換データ
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
-	Model* modelAttack_ = nullptr;
+	KamataEngine::Model* modelAttack_ = nullptr;
 
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	UpData* upData = nullptr;
 
-	Vector3 velocity_ = {};
+	KamataEngine::Vector3 velocity_ = {};
 
 	static inline const float kAcceleration = 0.1f;
 
@@ -194,7 +195,7 @@ private:
 		// 壁接触フラグ
 		bool hitWall = false;
 		// 移動量
-		Vector3 move;
+		KamataEngine::Vector3 move;
 	};
 
 	// 02_07 スライド13枚目
@@ -209,7 +210,7 @@ private:
 	
 
 	// 02_07 スライド17枚目
-	Vector3 CornerPosition(const Vector3& center, Corner corner);
+	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
 
 	// 02_08スライド14枚目 設置状態の切り替え処理
 	void UpdateOnGround(const CollisionMapInfo& info);
@@ -250,7 +251,7 @@ private:
 	static inline const uint32_t kActionTime = 5;
 	//26枚目 余韻動作の時間
 	static inline const uint32_t kRecoveryTime = 12;
-	WorldTransform worldTransformAttack_;
+	KamataEngine::WorldTransform worldTransformAttack_;
 
 	bool isOnGround_ = false;    // 接地しているかどうか
 	

@@ -5,8 +5,6 @@
 #include "Player.h"
 #include "UpData.h"
 
-using namespace KamataEngine;
-
 // 02_12 19枚目 タイトルシーン
 class TitleScene {
 public:
@@ -32,12 +30,12 @@ private:
 	static inline const float kTimeTitleMove = 2.0f;
 
 	// ビュープロジェクション
-	Camera camera_;
-	WorldTransform worldTransformTitle_;
-	WorldTransform worldTransformPlayer_;
+	KamataEngine::Camera camera_;
+	KamataEngine::WorldTransform worldTransformTitle_;
+	KamataEngine::WorldTransform worldTransformPlayer_;
 
-	Model* modelPlayer_ = nullptr;
-	Model* modelTitle_ = nullptr;
+	KamataEngine::Model* modelPlayer_ = nullptr;
+	KamataEngine::Model* modelTitle_ = nullptr;
 
 	float counter_ = 0.0f;
 	// 02_12 26枚目
@@ -53,5 +51,5 @@ private:
 
 	Player player_;
 	//Enemy enemy_;
-	Model* modelEnemy_ = nullptr;
+	KamataEngine::Model* modelEnemy_ = nullptr;
 };

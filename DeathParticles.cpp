@@ -1,5 +1,7 @@
 #include "DeathParticles.h"
 
+using namespace KamataEngine;
+
 void DeathParticles::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	// 02_11_13枚目 モデルとカメラを退避

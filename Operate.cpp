@@ -1,5 +1,7 @@
 #include "operate.h"
 
+using namespace KamataEngine;
+
 Operate::~Operate() {
 	delete modelArrow_;
 	delete modelSpace_;

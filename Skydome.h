@@ -1,14 +1,13 @@
 #pragma once
 #include <KamataEngine.h>
 
-using namespace KamataEngine;
 
 class Skydome {
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Model* model, Camera* camera_);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera_);
 
 	/// <summary>
 	/// 更新
@@ -22,10 +21,10 @@ public:
 
 private:
 	// ワールド変換データ
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 };

@@ -23,14 +23,14 @@ public:
 
 private:
 	// ビュープロジェクション
-	Camera camera_;
+	KamataEngine::Camera camera_;
 
-	WorldTransform worldTransformOparate_;
+	KamataEngine::WorldTransform worldTransformOparate_;
 
-	WorldTransform worldTransformSpace_;
+	KamataEngine::WorldTransform worldTransformSpace_;
 
 	// ワールド変換データ
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 
 	float counter_ = 0.0f;
 	// 02_12 26枚目
@@ -44,9 +44,9 @@ private:
 
 	UpData* upData = nullptr;
 
-	Model* modelArrow_ = nullptr;
+	KamataEngine::Model* modelArrow_ = nullptr;
 
-	Model* modelSpace_ = nullptr;
+	KamataEngine::Model* modelSpace_ = nullptr;
 
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 0.8f;

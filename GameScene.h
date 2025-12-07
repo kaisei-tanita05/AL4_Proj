@@ -9,6 +9,7 @@
 #include "Skydome.h"
 #include "UpData.h"
 #include <KamataEngine.h>
+#include "enemyBullet.h"
 
 //ゲームシーン
 class GameScene 
@@ -38,10 +39,10 @@ public:
 	bool IsFinished() const { return finished_; }
 
 	// エフェクトを生成
-	void CreateHitEffect(const Vector3& position);
+	void CreateHitEffect(const KamataEngine::Vector3& position);
 
 	// 02_10 10枚目 ワールド座標を取得
-	Vector3 GetWorldPosition() const;
+	KamataEngine::Vector3 GetWorldPosition() const;
 
 	// AABBを取得
 	AABB GetAABB();
@@ -50,6 +51,8 @@ public:
 
 	bool IsPauseActive() const { return pauseMenuActive_; }
 	int GetPauseSelection() const { return pauseSelection_; }
+
+	void CreateEnemyBullet(const KamataEngine::Vector3& position, const KamataEngine::Vector3& speed);
 
 	private:
 	// 02_12 4枚目 ゲームのフェーズ（型）
@@ -67,35 +70,36 @@ public:
 	////テクスチャーハンドル
 	uint32_t textureHandle_ = 0;
 
-	Sprite* sprite_ = nullptr;
+	KamataEngine::Sprite* sprite_ = nullptr;
 
 	//////3Dモデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	// ブロックの3Dモデル
-	Model* blockModel_ = nullptr;
+	KamataEngine::Model* blockModel_ = nullptr;
 
-	Model* goalModel_ = nullptr;
+	KamataEngine::Model* goalModel_ = nullptr;
 
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 
 	////カメラ
-	Camera camera_;
+	KamataEngine::Camera camera_;
 
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 
 	std::vector<std::vector<MapChipType>> blockTypes_;
 
 	// kTrap2ブロックの可視状態を記録する2次元配列
 	std::vector<std::vector<bool>> trap2Visibility_;
 
-	DebugCamera* debugCamera_ = nullptr;
+	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
 	// 自キャラ
 	Player* player_ = nullptr;
 
-	// 02_09 10枚目 エネミークラス
-	//Enemy* enemy_ = nullptr;
+	Enemy* enemy_ = nullptr;
+
+	enemyBullet* enemyBullet_ = nullptr;
 
 	// Math* math_ = nullptr;
 
@@ -104,19 +108,19 @@ public:
 
 	Skydome* skydome_ = nullptr;
 
-	Model* modelSkydome_ = nullptr;
+	KamataEngine::Model* modelSkydome_ = nullptr;
 
-	Model* modelPlayer_ = nullptr;
+	KamataEngine::Model* modelPlayer_ = nullptr;
 
-	Model* modelAttack_ = nullptr;
+	KamataEngine::Model* modelAttack_ = nullptr;
 
-	Model* enemy_model_ = nullptr;
+	KamataEngine::Model* enemy_model_ = nullptr;
 
-	Model* modelGoal_ = nullptr;
+	KamataEngine::Model* modelGoal_ = nullptr;
 
-	Model* modelArrow_ = nullptr;
+	KamataEngine::Model* modelArrow_ = nullptr;
 
-	WorldTransform worldTransformArrow_;
+	KamataEngine::WorldTransform worldTransformArrow_;
 
 	MapChipField* mapChipField_;
 
@@ -124,10 +128,13 @@ public:
 
 	std::list<Enemy*> enemies_;
 
+	std::list<enemyBullet*> enemyBullets_;
+	KamataEngine::Model* enemyBulletModel_ = nullptr;
+
 	DeathParticles* deathParticles_ = nullptr;
 
 	// 02_11 16枚目
-	Model* deathParticle_model_ = nullptr;
+	KamataEngine::Model* deathParticle_model_ = nullptr;
 
 	// 02_12 26枚目
 	bool finished_ = false;
@@ -141,36 +148,35 @@ public:
 	std::list<HitEffect*> hitEffects_;
 
 	// 02_16
-	Model* particle_model_ = nullptr;
+	KamataEngine::Model* particle_model_ = nullptr;
 
 	// キャラクターの当たり判定サイズ
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 
 	// ポーズメニュー作成
-	// ポーズメニュー作成
 	bool pauseMenuActive_ = false;
 
 	// メニュー選択
 	int pauseSelection_ = 0;
 
-	Sprite* pauseMenuBackGround_ = nullptr;
+	KamataEngine::Sprite* pauseMenuBackGround_ = nullptr;
 
-	Sprite* pauseMenu_ = nullptr;
+	KamataEngine::Sprite* pauseMenu_ = nullptr;
 
-	Sprite* pauseMenuRetryButton1_ = nullptr;
+	KamataEngine::Sprite* pauseMenuRetryButton1_ = nullptr;
 
-	Sprite* pauseMenuRetryButton2_ = nullptr;
+	KamataEngine::Sprite* pauseMenuRetryButton2_ = nullptr;
 
-	Sprite* pauseMenuTitleButton1_ = nullptr;
+	KamataEngine::Sprite* pauseMenuTitleButton1_ = nullptr;
 
-	Sprite* pauseMenuTitleButton2_ = nullptr;
+	KamataEngine::Sprite* pauseMenuTitleButton2_ = nullptr;
 
-	Sprite* pauseMenuBackGame_ = nullptr;
+	KamataEngine::Sprite* pauseMenuBackGame_ = nullptr;
 
-	Sprite* pauseMenuBackGame2_ = nullptr;
+	KamataEngine::Sprite* pauseMenuBackGame2_ = nullptr;
 
-	Sprite* chooseTexture_ = nullptr;
+	KamataEngine::Sprite* chooseTexture_ = nullptr;
 
 	// テクスチャハンドル
 	int32_t pauseMenuBackgroundHandle_ = 0;

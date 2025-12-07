@@ -3,10 +3,9 @@
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Math.h"
-#include "Player.h"
 #include "UpData.h"
+#include <list>
 
-using namespace KamataEngine;
 
 // 02_10 20枚目
 class Player;
@@ -30,7 +29,7 @@ public:
 	/// <param name="model_"></param>
 	/// <param name="camera_"></param>
 	/// <param name="position"></param>
-	void Initialize(Model* model, Camera* camera, const Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	/// <summary>
 	/// 更新
@@ -45,7 +44,7 @@ public:
 	// 02_10 スライド14枚目
 	AABB GetAABB();
 	// 02_10 スライド14枚目 ワールド座標を取得
-	Vector3 GetWorldPosition();
+	KamataEngine::Vector3 GetWorldPosition();
 	// 02_10 スライド20枚目 衝突応答
 	void OnCollision(const Player* player);
 
@@ -59,29 +58,31 @@ public:
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
 	// 位置を設定するメソッドを追加
-	void SetPosition(const Vector3& position) { position_ = position; }
+	void SetPosition(const KamataEngine::Vector3& position) { position_ = position; }
 
 	// 位置を取得するメソッドを追加
-	const Vector3& GetPosition() const { return position_; }
+	const KamataEngine::Vector3& GetPosition() const { return position_; }
+
+	void SetStop(bool flag) { isStop_ = flag; }
 
 private:
 	// ワールド変換データ
-	WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransform_;
 
 	// モデル
-	Model* model_ = nullptr;
+	KamataEngine::Model* model_ = nullptr;
 
 	UpData* upData = nullptr;
 
 	// テクスチャハンドル
 	//  uint32_t textureHandle_ = 0u;
 
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	// 02_09 15枚目
 	static inline const float kWalkSpeed = 0.02f;
 	// 02_09 15枚目
-	Vector3 velocity_ = {};
+	KamataEngine::Vector3 velocity_ = {};
 
 	// 02_09 19枚目
 	// 最初の角度
@@ -100,7 +101,7 @@ private:
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 
-	Vector3 position_; // 敵の位置を保持するメンバ変数
+	KamataEngine::Vector3 position_; // 敵の位置を保持するメンバ変数
 
 	bool isDead_ = false;
 
@@ -117,6 +118,11 @@ private:
 	// 02_15 20枚目
 	bool isCollisionDisabled_ = false;
 
-	// 02_16 19
 	GameScene* gameScene_ = nullptr;
+
+	// 弾を撃つ間隔
+	static inline const float kShootInterval = 2.0f;
+	float shootTimer_ = 0.0f;
+
+	bool isStop_ = false;
 };

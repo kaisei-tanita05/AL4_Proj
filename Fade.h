@@ -1,7 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
 
 /// <summary>
 /// フェード
@@ -30,7 +29,7 @@ public:
 	bool IsFinished() const;
 
 private:
-	Sprite* sprite_ = nullptr;
+	KamataEngine::Sprite* sprite_ = nullptr;
 
 	// 02_13 16枚目 現在のフェードの状態
 	Status status_ = Status::None;

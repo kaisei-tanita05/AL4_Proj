@@ -226,10 +226,10 @@ void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const 
 void Player::InputMove() {
 	// --- 横移動処理 ---
 	if (onGround_) {
-		// 左右操作
-		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
+		// 左右操作6
+		if (Input::GetInstance()->PushKey(DIK_D) || Input::GetInstance()->PushKey(DIK_A)) {
 			Vector3 acceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			if (Input::GetInstance()->PushKey(DIK_D)) {
 				if (velocity_.x < 0.0f)
 					velocity_.x *= (1.0f - kAttenuation);
 				acceleration.x += kAcceleration / 60.0f;
@@ -238,7 +238,7 @@ void Player::InputMove() {
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			} else if (Input::GetInstance()->PushKey(DIK_A)) {
 				if (velocity_.x > 0.0f)
 					velocity_.x *= (1.0f - kAttenuation);
 				acceleration.x -= kAcceleration / 60.0f;
@@ -260,7 +260,7 @@ void Player::InputMove() {
 
 	// --- ジャンプ処理 ---
 	// ジャンプキーを押した瞬間だけ反応
-	if (Input::GetInstance()->TriggerKey(DIK_UP)) {
+	if (Input::GetInstance()->TriggerKey(DIK_W)) {
 		// 接地 or 空中2回目のジャンプまで許可
 		if (jumpCount_ < maxJumpCount_) {
 			velocity_.y = 0.35f; // ジャンプ初速
@@ -270,7 +270,7 @@ void Player::InputMove() {
 	}
 
 	// --- 壁ジャンプ（右壁） ---
-	if (isWallJumpR_ && Input::GetInstance()->TriggerKey(DIK_UP)) {
+	if (isWallJumpR_ && Input::GetInstance()->TriggerKey(DIK_W)) {
 		// 壁ジャンプ時にジャンプカウントを1にリセット
 		jumpCount_ = 1;
 		velocity_.y = 0.35f; // 上方向
@@ -280,7 +280,7 @@ void Player::InputMove() {
 	}
 
 	// --- 壁ジャンプ（左壁） ---
-	if (isWallJumpL_ && Input::GetInstance()->TriggerKey(DIK_UP)) {
+	if (isWallJumpL_ && Input::GetInstance()->TriggerKey(DIK_W)) {
 		jumpCount_ = 1;
 		velocity_.y = 0.35f;
 		velocity_.x = 0.1f; // 右方向へ押し返す
@@ -659,4 +659,14 @@ void Player::OnCollision(const Enemy* enemy) {
 
 	// 02_12 12枚目 書き換え
 	isDead_ = true;
+}
+
+void Player::OnCollision2(const enemyBullet* enemyBullet_) {
+	if (IsAttack()) {
+		return;
+	}
+
+	(void)enemyBullet_;
+
+	//isDead_ = true;
 }

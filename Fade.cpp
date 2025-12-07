@@ -1,6 +1,8 @@
 #include "Fade.h"
 #include <algorithm>
 
+using namespace KamataEngine;
+
 void Fade::Initialize() {
 	// 02_13 10枚目
 	sprite_ = Sprite::Create(0, Vector2{});

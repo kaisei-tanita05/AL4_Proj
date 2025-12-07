@@ -1,7 +1,6 @@
 #pragma once
 #include <KamataEngine.h>
 
-using namespace KamataEngine;
 
 class Player;
 
@@ -19,7 +18,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Camera* camera);
+	void Initialize(KamataEngine::Camera* camera);
 
 	void Updata();
 
@@ -35,21 +34,21 @@ public:
 	/// カメラを取得
 	/// </summary>
 	/// <returns>カメラ</returns>
-	const Camera& GetCamera() const { return *camera_; }
+	const KamataEngine::Camera& GetCamera() const { return *camera_; }
 
 private:
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
 	Player* target_ = nullptr;
 
 	// Math* math_ = nullptr;
 
-	Vector3 targetOffset_ = {0, 0, -30.0f};
+	KamataEngine::Vector3 targetOffset_ = {0, 0, -30.0f};
 
 	// カメラ移動範囲
 	Rect movableArea_ = {0, 100, 0, 100};
 
-	Vector3 targetCoordinates_; // 目標座標
+	KamataEngine::Vector3 targetCoordinates_; // 目標座標
 
 	// 座標補間割合
 	static inline const float kInterpolationRate = 0.1f;

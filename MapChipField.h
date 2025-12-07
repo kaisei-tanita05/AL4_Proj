@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-using namespace KamataEngine;
 
 enum class MapChipType {
 	kBlank, // 空白
@@ -38,14 +37,14 @@ public:
 
 	void LoadMapChipCsv(const std::string& filePath);
 
-	Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
+	KamataEngine::Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 
 	uint32_t GetNumBlockVirtical() const { return kNumBlockVirtical; }
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
 
 	// 02_07 スライド22枚目
-	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+	IndexSet GetMapChipIndexSetByPosition(const KamataEngine::Vector3& position);
 	// 02_07 スライド33枚目
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
