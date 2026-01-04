@@ -36,6 +36,9 @@ public:
 	const KamataEngine::Vector3& GetVelocity() const { return bulletSpeed; }
 	void SetVelocity(const KamataEngine::Vector3& v) { bulletSpeed= v; }
 
+	void SetReflected(bool reflected) { isReflected_ = reflected; }
+	bool IsReflected() const { return isReflected_; }
+
 private:
 
 	//ワールド変換データ
@@ -58,4 +61,6 @@ private:
 	bool isAlive_ = false;
 
 	GameScene* gameScene_ = nullptr;
+
+	 bool isReflected_ = false;
 };

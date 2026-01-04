@@ -720,6 +720,9 @@ void GameScene::CheckAllCollisions() {
 					// Vector3 newV = {dir.x * speed, dir.y * speed, dir.z * speed};
 					bullet->SetVelocity({-curV.x, -curV.y, -curV.z});
 
+					//跳ね返しフラグを立てる
+					bullet->SetReflected(true);
+
 					IsBounce();
 
 					// 弾を少しプレイヤー側から押し出してめり込みを防止
@@ -729,14 +732,38 @@ void GameScene::CheckAllCollisions() {
 				}
 			}
 		}
-		// enemyと跳ね返したbulletとの当たり判定
-		if (IsBounce()) {
+		
+
+		for (EnemyBullet* bullet : enemyBullets_) {
+
+			if (!bullet || bullet->IsDead()) {
+				continue;
+			}
+
+			// ★ 跳ね返された弾のみ判定
+			if (!bullet->IsReflected()) {
+				continue;
+			}
+
+			AABB bulletAABB = bullet->GetAABB();
+
 			for (Enemy* enemy : enemies_) {
-				for (EnemyBullet* bullet : enemyBullets_) {
-					if (IsCollision(aabb2, aabb3)) {
-						enemy->OnCollision2(bullet);
-						enemy->IsDead();
-					}
+
+				if (enemy->IsDead()) {
+					continue;
+				}
+
+				AABB enemyAABB = enemy->GetAABB();
+
+				if (IsCollision(bulletAABB, enemyAABB)) {
+
+					// 敵を倒す
+					enemy->OnCollision2(bullet);
+
+					// 弾も消す（任意）
+					bullet->IsDead();
+
+					break;
 				}
 			}
 		}

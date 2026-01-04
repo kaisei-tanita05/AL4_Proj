@@ -105,13 +105,14 @@ private:
 
 	KamataEngine::Vector3 position_; // 敵の位置を保持するメンバ変数
 
+	//死亡フラグ
 	bool isDead_ = false;
 
 	// 02_15 13枚目
 	Behavior behavior_ = Behavior::kWalk;
 	Behavior behaviorRequest_ = Behavior::kUnknown;
 
-	// 02_15 15枚目
+	//死んだときの演出
 	static inline const float kDefeatedTime = 0.6f;
 	static inline const float kDefeatedMotionAngleStart = 0.0f;
 	static inline const float kDefeatedMotionAngleEnd = -60.0f;
@@ -120,6 +121,7 @@ private:
 	// 02_15 20枚目
 	bool isCollisionDisabled_ = false;
 
+	//ゲームシーンで動かすために含める
 	GameScene* gameScene_ = nullptr;
 
 	// 弾を撃つ間隔
