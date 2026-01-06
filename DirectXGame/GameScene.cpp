@@ -200,7 +200,6 @@ void GameScene::Initialize() {
 
 	chooseTexture_ = Sprite::Create(chooseTextureHandle_, {200, 300});
 	chooseTexture_->SetSize({373, 208});
-
 #pragma endregion
 }
 
@@ -342,6 +341,11 @@ void GameScene::Update() {
 		return false;
 	});
 
+	if (enemies_.empty() && phase_ == Phase::kPlay) {
+		phase_ = Phase::kClear;
+		fade_->Start(Fade::Status::FadeOut, 1.0f);
+	}
+
 	ChangePhase();
 
 	switch (phase_) {
@@ -477,7 +481,15 @@ void GameScene::Update() {
 		for (HitEffect* hitEffect : hitEffects_) {
 			hitEffect->Update();
 		}
+
+		if (Input::GetInstance()->TriggerKey(DIK_C)) {
+			finished_ = true;
+			phase_ = Phase::kClear;
+		}
+
 		break;
+
+		
 
 	case Phase::kDeath:
 		// デス演出フェーズ
@@ -529,6 +541,16 @@ void GameScene::Update() {
 
 		for (HitEffect* hitEffect : hitEffects_) {
 			hitEffect->Update();
+		}
+
+		break;
+
+		case Phase::kClear:
+		// クリア演出用フェーズ
+		fade_->Update();
+
+		if (fade_->IsFinished()) {
+			finished_ = true;
 		}
 
 		break;
@@ -689,6 +711,9 @@ void GameScene::CheckAllCollisions() {
 			if (IsCollision(aabb1, aabb3)) {
 				player_->OnCollision2(bullet);
 
+				// 現在の弾の速度（大きさを保持するために使う）
+				Vector3 curV = bullet->GetVelocity();
+
 				// Vector3 v = bullet->GetVelocity();
 				// v.x *= -1.0f; // ← X 方向反転（必要なら Y,Z も）
 				// bullet->SetVelocity(v);
@@ -698,11 +723,9 @@ void GameScene::CheckAllCollisions() {
 				// pos.x += v.x * 0.5f;
 				// bullet->SetPosition(pos);
 
-				// 現在の弾の速度（大きさを保持するために使う）
-				Vector3 curV = bullet->GetVelocity();
-
 				// --- 「スペース押下」かつプレイヤーが生存しているなら跳ね返す ---
 				if (!player_->IsDead() && Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+					bullet->SetVelocity({-curV.x, -curV.y, -curV.z});
 					//// プレイヤー位置と弾位置
 					// Vector3 playerPos = player_->GetWorldPosition();
 					// Vector3 bulletPos = bullet->GetPosition();
@@ -718,9 +741,8 @@ void GameScene::CheckAllCollisions() {
 
 					//// 新しい速度を設定（プレイヤーから弾へ向かう方向）
 					// Vector3 newV = {dir.x * speed, dir.y * speed, dir.z * speed};
-					bullet->SetVelocity({-curV.x, -curV.y, -curV.z});
 
-					//跳ね返しフラグを立てる
+					// 跳ね返しフラグを立てる
 					bullet->SetReflected(true);
 
 					IsBounce();
@@ -732,7 +754,6 @@ void GameScene::CheckAllCollisions() {
 				}
 			}
 		}
-		
 
 		for (EnemyBullet* bullet : enemyBullets_) {
 
@@ -740,7 +761,7 @@ void GameScene::CheckAllCollisions() {
 				continue;
 			}
 
-			// ★ 跳ね返された弾のみ判定
+			//跳ね返された弾のみ判定
 			if (!bullet->IsReflected()) {
 				continue;
 			}
@@ -760,9 +781,22 @@ void GameScene::CheckAllCollisions() {
 					// 敵を倒す
 					enemy->OnCollision2(bullet);
 
-					// 弾も消す（任意）
-					bullet->IsDead();
+					// 弾も消す
+					bullet->SetDead();
 
+					//// 敵が全員死んだか否か
+					//bool allDead = true;
+					//for (Enemy* e : enemies_) {
+					//	if (!e->IsDead()) {
+ 				//			allDead = false;
+					//		break;
+					//	}
+					//}
+
+					//if (allDead) {
+					//	phase_ = Phase::kClear;
+					//	fade_->Start(Fade::Status::FadeOut, 1.0f);
+					//}
 					break;
 				}
 			}

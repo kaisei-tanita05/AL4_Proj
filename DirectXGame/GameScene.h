@@ -56,6 +56,8 @@ public:
 
 	void CreateEnemyBullet(const KamataEngine::Vector3& position, const KamataEngine::Vector3& speed);
 
+	bool IsClear() const { return phase_ == Phase::kClear; }
+
 	private:
 	// 02_12 4枚目 ゲームのフェーズ（型）
 	enum class Phase {

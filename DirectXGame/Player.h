@@ -84,6 +84,8 @@ public:
 
 	bool IsHit() const { return isHit_; }
 
+	bool IsGoal() const { return isGoal_; }
+
 	// 通常行動更新
 	// 6枚目 通常行動更新
 	void BehavoirRootUpdate();

@@ -23,6 +23,8 @@ public:
 
 	bool IsDead() const { return !isAlive_; }
 
+	void SetDead() { isAlive_ = true; }
+
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
 	void SetPosition(const KamataEngine::Vector3& position) {
