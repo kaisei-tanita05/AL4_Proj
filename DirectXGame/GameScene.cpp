@@ -489,8 +489,6 @@ void GameScene::Update() {
 
 		break;
 
-		
-
 	case Phase::kDeath:
 		// デス演出フェーズ
 
@@ -545,7 +543,7 @@ void GameScene::Update() {
 
 		break;
 
-		case Phase::kClear:
+	case Phase::kClear:
 		// クリア演出用フェーズ
 		fade_->Update();
 
@@ -708,8 +706,15 @@ void GameScene::CheckAllCollisions() {
 
 			aabb3 = bullet->GetAABB();
 
+			//playerとenemyBulletの当たり判定
 			if (IsCollision(aabb1, aabb3)) {
 				player_->OnCollision2(bullet);
+
+				//dieCount_--;
+
+				/*if (dieCount_ <= 0) {
+
+				}*/
 
 				// 現在の弾の速度（大きさを保持するために使う）
 				Vector3 curV = bullet->GetVelocity();
@@ -761,7 +766,7 @@ void GameScene::CheckAllCollisions() {
 				continue;
 			}
 
-			//跳ね返された弾のみ判定
+			// 跳ね返された弾のみ判定
 			if (!bullet->IsReflected()) {
 				continue;
 			}
@@ -783,20 +788,6 @@ void GameScene::CheckAllCollisions() {
 
 					// 弾も消す
 					bullet->SetDead();
-
-					//// 敵が全員死んだか否か
-					//bool allDead = true;
-					//for (Enemy* e : enemies_) {
-					//	if (!e->IsDead()) {
- 				//			allDead = false;
-					//		break;
-					//	}
-					//}
-
-					//if (allDead) {
-					//	phase_ = Phase::kClear;
-					//	fade_->Start(Fade::Status::FadeOut, 1.0f);
-					//}
 					break;
 				}
 			}

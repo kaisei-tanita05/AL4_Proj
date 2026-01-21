@@ -198,4 +198,7 @@ public:
 	int32_t pauseMenuBackGame2Handle_ = 0;
 
 	int32_t chooseTextureHandle_ = 0;
+
+	//enemyBulletに当たって時間が0になったらplayerが死ぬ
+	int32_t dieCount_ = 60;
 };

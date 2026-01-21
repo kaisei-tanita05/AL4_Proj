@@ -1,40 +1,38 @@
 #pragma once
-#include <KamataEngine.h>
-#include "UpData.h"
+#include "MapChipField.h"
 #include "Math.h"
+#include "UpData.h"
+#include "enemyBullet.h"
+#include <KamataEngine.h>
 #include <algorithm>
 #include <cassert>
 #include <numbers>
-#include "MapChipField.h"
-#include "enemyBullet.h"
 
 class MapChipField;
 
 class Enemy;
 
-
 class Player {
 
 public:
-
-	//左右
+	// 左右
 	enum class LRDirection {
 		kRight,
 		kLeft,
 	};
 
-	//地面ブロックとの当たり判定
+	// 地面ブロックとの当たり判定
 	enum Corner { kRightBottom, kLeftBottom, kRightTop, kLeftTop, kNumCorner };
 
-	//振る舞い
-	enum class Behavior { 
+	// 振る舞い
+	enum class Behavior {
 		kUnknown = -1,
-		kRoot,//通常状態
-		kAttack,//攻撃
-		kPari, //パリィ
+		kRoot,   // 通常状態
+		kAttack, // 攻撃
+		kPari,   // パリィ
 	};
 
-	//攻撃フェーズ
+	// 攻撃フェーズ
 	enum class AttackPhase {
 		kUnknown = -1, // 無効な状態
 		kAnticipation, // 予備動作
@@ -42,16 +40,13 @@ public:
 		kRecovery,     // 余韻動作
 	};
 
-	//パリィフェーズ
+	// パリィフェーズ
 	enum class PariPahase {
 		kUnknown = -1,
 		kAnticipation, // 予備動作
 		kAction,       // 前進動作
 		kRecovery,     // 余韻動作
 	};
-
-
-
 
 	void Initialize(KamataEngine::Model* model_, KamataEngine::Model* modelAttack, KamataEngine::Camera* camera_, const KamataEngine::Vector3& position);
 
@@ -90,19 +85,18 @@ public:
 	// 6枚目 通常行動更新
 	void BehavoirRootUpdate();
 
-	//8枚目 攻撃行動更新
+	// 8枚目 攻撃行動更新
 	void BehaviorAttackUpdate();
 
-	//void BehaviorPariUpData();
+	// void BehaviorPariUpData();
 
-	//16枚目 通常行動初期化
+	// 16枚目 通常行動初期化
 	void BehaviorRootInitialize();
 
-	//16枚目 攻撃行動初期化
+	// 16枚目 攻撃行動初期化
 	void BehaviorAttackInitialize();
 
-
-	//void BehaviorPariInitialize();
+	// void BehaviorPariInitialize();
 
 	/// <summary>
 	/// プレイヤーの位置を設定
@@ -117,7 +111,6 @@ public:
 	void SetHit() { isHit_ = true; }
 
 private:
-
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
 
@@ -216,8 +209,6 @@ private:
 	void CheckMapCollisionRight(CollisionMapInfo& info);
 	void CheckMapCollisionLeft(CollisionMapInfo& info);
 
-	
-
 	// 02_07 スライド17枚目
 	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
 
@@ -227,7 +218,7 @@ private:
 	// 02_08 スライド27枚目 壁接触している場合の処理
 	void UpdateOnWall(const CollisionMapInfo& info);
 
-	//デスフラグ
+	// デスフラグ
 	bool isDead_ = false;
 
 	// playerが見えないブロックにあたった時のフラグ
@@ -236,33 +227,52 @@ private:
 	// ゴールをしたかのフラグ
 	bool isGoal_ = false;
 
-	//振るまい
+	// 振るまい
 	Behavior behavior_ = Behavior::kRoot;
 
-	//次の振るまいリクエスト
+	// 次の振るまいリクエスト
 	Behavior behaviorRequest_ = Behavior::kUnknown;
 
-	//攻撃ギミックの経過時間カウンター
+	// 攻撃ギミックの経過時間カウンター
 	uint32_t attackParameter_ = 0;
 
-	//攻撃フェーズ
+	// 攻撃フェーズ
 	AttackPhase attackPhase_ = AttackPhase::kUnknown;
 
-	//パリィの経過時間カウンター
+	// パリィの経過時間カウンター
 	uint32_t pariParameter_ = 0;
 
-	//パリィフェーズ
+	// パリィフェーズ
 	PariPahase parikPhase_ = PariPahase::kUnknown;
 
-	//26枚目 予備動作の時間
+	// 26枚目 予備動作の時間
 	static inline const uint32_t kAnticipationTime = 8;
-	//26枚目 前進動作の時間
+	// 26枚目 前進動作の時間
 	static inline const uint32_t kActionTime = 5;
-	//26枚目 余韻動作の時間
+	// 26枚目 余韻動作の時間
 	static inline const uint32_t kRecoveryTime = 12;
 	KamataEngine::WorldTransform worldTransformAttack_;
 
-	bool isOnGround_ = false;    // 接地しているかどうか
-	
-	
+	bool isOnGround_ = false; // 接地しているかどうか
+
+	int32_t dieCount = 5;
+
+	// enemyBullet ヒット関連
+	int bulletHitFrame_ = 0;                     // 当たっているフレーム数
+	static inline const uint32_t kDieFrame = 10; // 60フレーム = 約1秒
+	bool isHitByBullet_ = false;                 // 今フレーム当たっているか
+
+	// HPストック
+	int32_t hp_ = 3;
+
+	// 無敵時間
+	bool isInvincible_ = false;
+	int32_t invincibleTimer_ = 0;
+	static inline const uint32_t kInvincibleTime = 60;
+
+	// ノックバック
+	bool isKnockBack_ = false;
+	int knockBackTimer_ = 0;
+	static inline const uint32_t kKnockBackTime = 15; // ノックバック持続
+	KamataEngine::Vector3 knockBackVelocity_ = {};
 };

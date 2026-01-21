@@ -3,8 +3,6 @@
 
 using namespace KamataEngine;
 
-
-
 void Player::UpDate() {
 
 	// 02_14 15枚目
@@ -41,6 +39,39 @@ void Player::UpDate() {
 	// 02_14 8枚目 行列計算
 	upData->WorldTransformUpData(worldTransform_);
 	upData->WorldTransformUpData(worldTransformAttack_);
+	// --- enemyBullet 接触時間管理 ---
+	if (isHitByBullet_) {
+		bulletHitFrame_++;
+
+		if (bulletHitFrame_ >= kDieFrame) {
+			isDead_ = true;
+		}
+	} else {
+		// 当たっていなければリセット
+		bulletHitFrame_ = 0;
+	}
+
+	// フラグを毎フレームリセット
+	isHitByBullet_ = false;
+
+	// ---------- 無敵時間更新 ----------
+	if (isInvincible_) {
+		invincibleTimer_--;
+		if (invincibleTimer_ <= 0) {
+			isInvincible_ = false;
+		}
+	}
+
+	// ---------- ノックバック更新 ----------
+	if (isKnockBack_) {
+		worldTransform_.translation_ += knockBackVelocity_;
+		knockBackTimer_--;
+
+		if (knockBackTimer_ <= 0) {
+			isKnockBack_ = false;
+			knockBackVelocity_ = {};
+		}
+	}
 }
 
 // 通常行動初期化
@@ -219,6 +250,11 @@ void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const 
 }
 
 void Player::InputMove() {
+
+	if (isKnockBack_) {
+		return; // ノックバック中は操作不可
+	}
+
 	// --- 横移動処理 ---
 	if (onGround_) {
 		// 左右操作6
@@ -661,7 +697,38 @@ void Player::OnCollision2(const EnemyBullet* enemyBullet_) {
 		return;
 	}
 
-	(void)enemyBullet_;
+	if (isInvincible_) {
+		return; // 無敵中は何もしない
+	}
 
-	//isDead_ = true;
+	hp_--;
+
+	// ノックバック
+	isKnockBack_ = true;
+	knockBackTimer_ = kKnockBackTime;
+
+	const float knockPowerX = 0.2f;
+	const float knockPowerY = 0.25f;
+
+	if (lrDirection_ == LRDirection::kRight) {
+		knockBackVelocity_ = {-knockPowerX, knockPowerY, 0.0f};
+	} else {
+		knockBackVelocity_ = {knockPowerX, knockPowerY, 0.0f};
+	}
+
+	// 無敵時間
+	isInvincible_ = true;
+	invincibleTimer_ = kInvincibleTime;
+
+	// 死亡判定
+	if (hp_ <= 0) {
+		isDead_ = true;
+	}
+
+	// dieCount--;
+	(void)enemyBullet_;
+	/*if (dieCount <= 0) {
+	    isDead_ = true;
+	}*/
+	isHitByBullet_ = true;
 }
