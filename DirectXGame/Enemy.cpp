@@ -35,6 +35,7 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	upData = new UpData();
 
 	enemyDessSEHandle_ = Audio::GetInstance()->LoadWave("sound/SE/enemyDessSE.mp3");
+	//bool canMove = true;
 }
 
 // 02_09 スライド5枚目
@@ -62,7 +63,35 @@ void Enemy::UpDate() {
 	// 歩行
 	case Behavior::kWalk:
 		// 02_09 16枚目 移動
-		worldTransform_.translation_ += velocity_;
+		//worldTransform_.translation_ += velocity_;
+		Vector3 nextPos = worldTransform_.translation_ + velocity_;
+		
+
+
+		if (mapChipField_) {
+			// enemyの足元の少し下をチェック（kHeight は Enemy の当たり高さ）
+			const float kFootCheck = 0.2f;
+			Vector3 footPos = nextPos + Vector3(0.0f, -kHeight / 2.0f - kFootCheck, 0.0f);
+
+			auto idx = mapChipField_->GetMapChipIndexSetByPosition(footPos);
+			MapChipType under = mapChipField_->GetMapChipTypeByIndex(idx.xIndex, idx.yIndex);
+
+			// 足元がブロックじゃないなら進めない
+			if (under != MapChipType::kBlock) {
+				canMove = false;
+			} else {
+				// ついでに「ブロックの上にスナップ」して落下・ズレを防ぐ（任意だけど強い）
+				auto rect = mapChipField_->GetRectByIndex(idx.xIndex, idx.yIndex);
+				worldTransform_.translation_.y = rect.top + (kHeight / 2.0f + 0.01f);
+			}
+		}
+
+		 if (canMove && !isStop_) {
+			worldTransform_.translation_ = nextPos;
+		} else {
+			// 端に来たら反転（止めたいなら velocity_= {} とかでもOK）
+			velocity_.x *= -1.0f;
+		}
 
 		// 02_09 20枚目
 		walkTimer += 1.0f / 60.0f;
@@ -105,30 +134,33 @@ void Enemy::UpDate() {
 		break;
 	}
 
-	if (isStop_) {
+	//if (isStop_) {
 
-		worldTransform_.translation_;
+	//	worldTransform_.translation_;
 
-		return;
-	} else {
+	//	return;
+	//} else {
 
-		// 02_09 16枚目 移動
-		worldTransform_.translation_ += velocity_;
-	}
-	// 02_09 20枚目
-	walkTimer += 1.0f / 60.0f;
+	//	// 02_09 16枚目 移動
+	//	worldTransform_.translation_ += velocity_;
+	//}
+	//// 02_09 20枚目
+	//walkTimer += 1.0f / 60.0f;
 
-	// 02_09 23枚目 回転アニメーション
-	// worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
+	//// 02_09 23枚目 回転アニメーション
+	//// worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
 
-	float param = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
+	//float param = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
 
-	float degree = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
+	//float degree = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
 
-	worldTransform_.rotation_.x = degree * (std::numbers::pi_v<float> / 180.0f);
+	//worldTransform_.rotation_.x = degree * (std::numbers::pi_v<float> / 180.0f);
 
 	// 02_09 スライド8枚目 ワールド行列更新
 	upData->WorldTransformUpData(worldTransform_);
+
+
+
 }
 
 // 02_09 スライド5枚目

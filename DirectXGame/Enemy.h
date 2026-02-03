@@ -67,6 +67,8 @@ public:
 
 	void SetStop(bool flag) { isStop_ = flag; }
 
+	 void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
@@ -133,4 +135,7 @@ private:
 	uint32_t enemyDessSEHandle_ = 0;
 
 	uint32_t playEnemyDessSEHandle_ = 0;
+
+	MapChipField* mapChipField_ = nullptr;
+	bool canMove = true;
 };
