@@ -259,7 +259,7 @@ private:
 
 	// enemyBullet ヒット関連
 	int bulletHitFrame_ = 0;                     // 当たっているフレーム数
-	static inline const uint32_t kDieFrame = 10; // 60フレーム = 約1秒
+	static inline const uint32_t kDieFrame = 20; // 60フレーム = 約1秒
 	bool isHitByBullet_ = false;                 // 今フレーム当たっているか
 
 	// HPストック
@@ -275,4 +275,16 @@ private:
 	int knockBackTimer_ = 0;
 	static inline const uint32_t kKnockBackTime = 15; // ノックバック持続
 	KamataEngine::Vector3 knockBackVelocity_ = {};
+
+	//playerの残機
+	KamataEngine::Sprite* hpSprite_ = nullptr;
+	uint32_t hpTextureHandle_ = 0;
+
+	uint32_t SEHandle_ = 0;
+
+	uint32_t playSEHandle_ = 0;
+
+	uint32_t dessSEHandle_ = 0;
+
+	uint32_t playDessSEHandle_ = 0;
 };

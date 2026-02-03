@@ -33,6 +33,8 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	isDead_ = false;
 
 	upData = new UpData();
+
+	enemyDessSEHandle_ = Audio::GetInstance()->LoadWave("sound/SE/enemyDessSE.mp3");
 }
 
 // 02_09 スライド5枚目
@@ -98,6 +100,7 @@ void Enemy::UpDate() {
 
 		if (counter_ >= kDefeatedTime) {
 			isDead_ = true;
+			playEnemyDessSEHandle_ = Audio::GetInstance()->PlayWave(enemyDessSEHandle_, false, 10.0f);
 		}
 		break;
 	}
@@ -194,12 +197,10 @@ void Enemy::OnCollision(const Player* player) {
 }
 
 
-void Enemy::OnCollision2(const EnemyBullet* bullet) { 
+void Enemy::OnCollision2(const EnemyBullet* bullet) {
 	if (behavior_ == Behavior::kDefeated) {
 		return;
 	}
-		if (gameScene_) {
-		Vector3 pos = bullet->GetWorldPosition();
-		    behavior_ = Behavior::kDefeated;
-		}
+	behaviorRequest_ = Behavior::kDefeated; // ★こっち推奨
+	(void)bullet;
 }

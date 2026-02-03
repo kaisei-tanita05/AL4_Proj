@@ -201,6 +201,16 @@ void GameScene::Initialize() {
 	chooseTexture_ = Sprite::Create(chooseTextureHandle_, {200, 300});
 	chooseTexture_->SetSize({373, 208});
 #pragma endregion
+
+#pragma region サウンド
+	//BGM
+	BGMHandle_ = Audio::GetInstance()->LoadWave("sound/BGM/GameSceneBGM2.mp3");
+	voiceHandle_ = Audio::GetInstance()->PlayWave(BGMHandle_, true, 1.0f);
+
+	// パリィのSE
+	pariSEHandle_ = Audio::GetInstance()->LoadWave("sound/SE/pariSE.mp3");
+#pragma endregion
+
 }
 
 // 02_10 10枚目
@@ -287,6 +297,9 @@ void GameScene::GenerateBlocks() {
 
 void GameScene::Update() {
 
+
+	
+
 	// =========================
 	// ポーズ処理
 	// =========================
@@ -308,10 +321,12 @@ void GameScene::Update() {
 			switch (pauseSelection_) {
 			case 0:               // リトライ
 				finished_ = true; // Scene側で再生成される
+				Audio::GetInstance()->StopWave(voiceHandle_);
 				break;
 			case 1: // タイトル
 				finished_ = true;
 				player_->SetDead(); // 死んだ扱いにしてGameOverへ飛ばさないように
+				Audio::GetInstance()->StopWave(voiceHandle_);
 				break;
 			case 2: // 続行
 				pauseMenuActive_ = false;
@@ -408,7 +423,7 @@ void GameScene::Update() {
 	case Phase::kPlay:
 		// ゲームプレイフェーズの処理
 
-		//   skydome生成
+		//   skyDome生成
 		skydome_->Update();
 
 		CController_->Updata();
@@ -540,7 +555,7 @@ void GameScene::Update() {
 		for (HitEffect* hitEffect : hitEffects_) {
 			hitEffect->Update();
 		}
-
+		Audio::GetInstance()->StopWave(voiceHandle_);
 		break;
 
 	case Phase::kClear:
@@ -550,7 +565,7 @@ void GameScene::Update() {
 		if (fade_->IsFinished()) {
 			finished_ = true;
 		}
-
+		Audio::GetInstance()->StopWave(voiceHandle_);
 		break;
 	}
 }
@@ -605,7 +620,9 @@ void GameScene::Draw() {
 	}
 
 	for (EnemyBullet* bullet : enemyBullets_) {
-		bullet->Draw();
+		if (!bullet->IsDead()) {
+			bullet->Draw();
+		}
 	}
 
 	// 02_11 18枚目 デスパーティクルあれば描画
@@ -706,7 +723,7 @@ void GameScene::CheckAllCollisions() {
 
 			aabb3 = bullet->GetAABB();
 
-			//playerとenemyBulletの当たり判定
+			//playerとEnemyBulletの当たり判定
 			if (IsCollision(aabb1, aabb3)) {
 				player_->OnCollision2(bullet);
 
@@ -755,6 +772,11 @@ void GameScene::CheckAllCollisions() {
 					// 弾を少しプレイヤー側から押し出してめり込みを防止
 					// Vector3 newPos = {bulletPos.x + dir.x * 0.5f, bulletPos.y + dir.y * 0.5f, bulletPos.z + dir.z * 0.5f};
 					// bullet->SetPosition(newPos);
+
+					playpariSEHandle_ = Audio::GetInstance()->PlayWave(pariSEHandle_, false, 10.0f);
+					break;
+				} else {
+					bullet->SetDead();
 					break;
 				}
 			}

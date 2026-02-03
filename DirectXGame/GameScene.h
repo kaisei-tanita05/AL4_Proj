@@ -201,4 +201,16 @@ public:
 
 	//enemyBulletに当たって時間が0になったらplayerが死ぬ
 	int32_t dieCount_ = 60;
+
+	//サウンドハンドル
+	uint32_t BGMHandle_ = 0;
+
+	uint32_t voiceHandle_ = 0;
+
+	uint32_t SEHandle_ = 0;
+
+	uint32_t pariSEHandle_ = 0;
+
+	uint32_t playpariSEHandle_ = 0;
+
 };

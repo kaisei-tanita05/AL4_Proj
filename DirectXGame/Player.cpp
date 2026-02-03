@@ -3,6 +3,31 @@
 
 using namespace KamataEngine;
 
+void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const Vector3& position) {
+	assert(model);
+
+	model_ = model;
+	modelAttack_ = modelAttack;
+	camera_ = camera;
+
+	worldTransformAttack_.Initialize();
+
+	worldTransformAttack_.translation_ = position;
+
+	worldTransformAttack_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
+	worldTransform_.Initialize();
+
+	worldTransform_.translation_ = position;
+
+	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
+	//ジャンプのSE
+	SEHandle_ = Audio::GetInstance()->LoadWave("sound/SE/jumpSE.mp3");
+
+	dessSEHandle_ = Audio::GetInstance()->LoadWave("sound/SE/playerDessSE.mp3");
+}
+
 void Player::UpDate() {
 
 	// 02_14 15枚目
@@ -229,26 +254,6 @@ void Player::BehaviorAttackUpdate() {
 	worldTransformAttack_.rotation_ = worldTransform_.rotation_;
 }
 
-void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const Vector3& position) {
-	assert(model);
-
-	model_ = model;
-	modelAttack_ = modelAttack;
-	camera_ = camera;
-
-	worldTransformAttack_.Initialize();
-
-	worldTransformAttack_.translation_ = position;
-
-	worldTransformAttack_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-
-	worldTransform_.Initialize();
-
-	worldTransform_.translation_ = position;
-
-	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
-}
-
 void Player::InputMove() {
 
 	if (isKnockBack_) {
@@ -297,6 +302,7 @@ void Player::InputMove() {
 			velocity_.y = 0.35f; // ジャンプ初速
 			onGround_ = false;
 			jumpCount_++; // ジャンプ回数を加算
+			playSEHandle_ = Audio::GetInstance()->PlayWave(SEHandle_, false, 10.0f);
 		}
 	}
 
@@ -329,9 +335,6 @@ void Player::InputMove() {
 	if (onGround_) {
 		velocity_.x *= (1.0f - kAttenuationLanding);
 	}
-
-	// --- 移動量更新 ---
-	// ※この部分はそのままの処理が呼ばれる想定
 }
 
 // 02_07 スライド13枚目 当たり判定
@@ -723,12 +726,11 @@ void Player::OnCollision2(const EnemyBullet* enemyBullet_) {
 	// 死亡判定
 	if (hp_ <= 0) {
 		isDead_ = true;
+		playDessSEHandle_ = Audio::GetInstance()->PlayWave(dessSEHandle_, false, 10.0f);
 	}
 
 	// dieCount--;
 	(void)enemyBullet_;
-	/*if (dieCount <= 0) {
-	    isDead_ = true;
-	}*/
+
 	isHitByBullet_ = true;
 }

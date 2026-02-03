@@ -129,4 +129,8 @@ private:
 	float shootTimer_ = 0.0f;
 
 	bool isStop_ = false;
+
+	uint32_t enemyDessSEHandle_ = 0;
+
+	uint32_t playEnemyDessSEHandle_ = 0;
 };

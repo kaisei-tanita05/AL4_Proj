@@ -23,7 +23,7 @@ public:
 
 	bool IsDead() const { return !isAlive_; }
 
-	void SetDead() { isAlive_ = true; }
+	void SetDead() { isAlive_ = false; }
 
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 

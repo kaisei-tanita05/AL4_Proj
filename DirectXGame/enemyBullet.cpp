@@ -12,7 +12,7 @@ void EnemyBullet::Initialize(Model* model, Camera* camera, Vector3& position) {
 
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-
+	upData = new UpData();
 	isAlive_ = true;
 }
 
