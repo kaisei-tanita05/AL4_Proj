@@ -82,7 +82,7 @@ private:
 	KamataEngine::Camera* camera_ = nullptr;
 
 	// 02_09 15枚目
-	static inline const float kWalkSpeed = 0.02f;
+	static inline const float kWalkSpeed = 0.001f;
 	// 02_09 15枚目
 	KamataEngine::Vector3 velocity_ = {};
 
